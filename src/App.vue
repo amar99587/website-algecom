@@ -13,7 +13,7 @@
             </button>
         </header>
         <div class="flex flex-col gap-2">
-          <img src="@/assets/avatar.png" class="w-20 rounded-full mx-auto mb-4">
+          <img :src="user.picture?.data?.url || '@/assets/avatar.png'" class="w-20 rounded-full mx-auto mb-4">
           <p class="text-[smaller] text-neutral-800 font-medium text-center cursor-default">
             Create or Login to your account <br>
             using your Facebook account
@@ -96,6 +96,12 @@ const message = ref("");
 const sending = ref(false);
 const conversation = ref([]);
 
+const user = ref({
+  name: "",
+  email: "",
+  picture: "",
+});
+
 const chatContainer = ref(null);
 
 const send = async msg => {
@@ -136,6 +142,7 @@ const loginWithFacebook = () => {
         FB.api('/me/accounts', pages => console.log({ pages }));
         window.FB.api('/me', { fields: 'name,email,picture' }, (user) => {
           console.log({ user, token });
+          user.value = user;
           console.log('Profile Picture URL:', user.picture?.data?.url);
         });
       } else {
@@ -162,7 +169,11 @@ onMounted(() => {
     });
 
     window.FB.AppEvents.logPageView();
-    console.log("FB SDK loaded");      
+    console.log("FB SDK loaded");
+    window.FB.api('/me', { fields: 'name,email,picture' }, (user) => {
+      console.log({ user, token });
+      console.log('Profile Picture URL:', user.picture?.data?.url);
+    });
   };
   let [ d, s, id ] = [ document, 'script', 'facebook-jssdk' ];
   var js, fjs = d.getElementsByTagName(s)[0];
