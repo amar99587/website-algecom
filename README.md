@@ -1,4 +1,4 @@
-# n8n-ai-e-com
+# Algecom
 
 ## Project setup
 ```
