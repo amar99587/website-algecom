@@ -134,8 +134,9 @@ const loginWithFacebook = () => {
         
         FB.api('/me/permissions', permissions => console.log({ permissions }));
         FB.api('/me/accounts', pages => console.log({ pages }));
-        window.FB.api('/me', { fields: 'name,email,photo' }, (user) => {
+        window.FB.api('/me', { fields: 'name,email,picture' }, (user) => {
           console.log({ user, token });
+          console.log('Profile Picture URL:', user.picture?.data?.url);
         });
       } else {
         console.log('User cancelled login or did not fully authorize.');
