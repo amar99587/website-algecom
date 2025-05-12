@@ -3,10 +3,10 @@
     <img src="@/assets/logo.svg" class="w-32" alt="Algecom's logo">
     <template v-if="fbInitzed">
       <div v-if="user.id" class="flex justify-betwee items-center gap-6">
-        <a :href="'https://app.algecom.com?token=' + user.accessToken" class="hidden md:block font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1 px-6 rounded-md cursor-pointer">
+        <a :href="'https://app.algecom.com?token=' + user.access_token" class="hidden md:block font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1 px-6 rounded-md cursor-pointer">
           Go to Console
         </a>
-        <img :src="facebookGraph + user.accessToken" class="w-9 h-9 bg-zinc-400 rounded-full cursor-pointer" :alt="user.name" @click="userCard = true">
+        <img :src="facebookGraph + user.access_token" class="w-9 h-9 bg-zinc-200 rounded-full cursor-pointer" :alt="user.name" @click="userCard = true">
       </div>
       <button v-else @click="userCard = true" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1 px-6 rounded-md">Login</button>
       <div v-if="userCard" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 duration-500">
@@ -21,12 +21,12 @@
           </header>
           <div class="flex flex-col gap-2">
             <template v-if="user.id">
-              <img :src="facebookGraph + user.accessToken" class="w-20 h-20 bg-zinc-400 rounded-full mx-auto mb-4">
+              <img :src="facebookGraph + user.access_token" class="w-20 h-20 bg-zinc-200 rounded-full mx-auto mb-4">
               <p class="text-center cursor-default">
                 <span class="text-xl text-neutral-800 font-semibold">{{ user.name }}</span> <br>
                 <span class="text-[smaller] text-neutral-600 font-medium">{{ user.email }}</span>
               </p>
-              <a :href="'https://app.algecom.com?token=' + user.accessToken" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1.5 px-6 mx-auto mt-10 rounded-md w-fit tracking-wider">Go to Console</a>
+              <a :href="'https://app.algecom.com?token=' + user.access_token" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1.5 px-6 mx-auto mt-10 rounded-md w-fit tracking-wider">Go to Console</a>
               <p class="grid gap-1  text-center mt-2 cursor-default">
                 <span @click="logout" class="text-xs font-semibold text-neutral-500 hover:text-red-600 duration-300 cursor-pointer">Logout</span>
                 <span class="text-[xx-small] text-neutral-400 font-medium">
@@ -50,6 +50,7 @@
         </div>
       </div>
     </template>
+    <img v-else title="Facebook SDK is not initialized yet" src="@/assets/avatar.png" class="w-9 h-9 bg-zinc-200 rounded-full cursor-pointer">
   </header>
   <div class="text-center mt-44">
     <h1 class="font-family-dela text-5xl pb-4 cursor-default">Mr7ba bik m3ana 🔥</h1>
@@ -118,6 +119,7 @@ const sending = ref(false);
 const fbInitzed = ref(false);
 const userCard = ref(false);
 const conversation = ref([]);
+const chatContainer = ref(null);
 
 const facebookGraph = "https://graph.facebook.com/v19.0/me/picture?height=300&width=300&access_token="
 
@@ -126,10 +128,18 @@ const user = ref({
   name: "",
   email: "",
   picture: "",
-  accessToken: "",
+  access_token: ""
 });
 
-const chatContainer = ref(null);
+const clearUser = () => {
+  user.value = {
+    id: "",
+    name: "",
+    email: "",
+    picture: "",
+    access_token: ""
+  };
+};
 
 const send = async msg => {
   if (msg?.trim() === "") return;
@@ -158,94 +168,79 @@ const send = async msg => {
   setTimeout(() => chatContainer.value.scrollIntoView(0), 100);
 };
 
-const getUserData = access_token => {
-  access_token = access_token || localStorage?.facebookAccessToken;
+const logout = () => {
+  window.FB.logout();
+  clearUser();
+};
+
+const getUser = access_token => {
   if (access_token) {
     window.FB.api('/me', { fields: 'name,email,picture', access_token }, (data) => {
       if (data?.error) {
         console.error("Error fetching user data:", data.error);
+        fbInitzed.value = true;
         return;
       }
-      user.value = {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        picture: data.picture?.data?.url,
-        accessToken: access_token,
-      };
-      localStorage.setItem('facebookAccessToken', access_token);
+      user.value = { ...data, access_token };
       fbInitzed.value = true;
     });
-  } else fbInitzed.value = true;
-};
-
-const logout = () => {
-  localStorage.removeItem('facebookAccessToken');
-  user.value = {
-    id: "",
-    name: "",
-    email: "",
-    picture: "",
-    accessToken: "",
-  };
-  window.FB.logout();
+  }
+  else logout();
 };
 
 const login = () => {
-  window.FB.login(
-    (response) => {
-      console.log({ response });
-      if (response.authResponse) {
-        const token = response.authResponse.accessToken;
-        FB.api('/me/permissions', permissions => !permissions.data.every(e => e.status == "granted") && alert("Please allow all permissions"));
-        FB.api('/me/accounts', pages => pages.length == 0 && alert("Please add a page to your account"));
-        getUserData(token);
-      } else {
-        console.log('User cancelled login or did not fully authorize.');
-      }
-    },
-    {
-      scope: 'email,pages_show_list,pages_manage_metadata,pages_messaging,pages_read_engagement',
-      auth_type: 'rerequest',
-      login_config_id: '3970975716449824'
+  window.FB.login(({ status, authResponse }) => {
+    if (status == "connected") {
+      const token = authResponse.accessToken;
+      FB.api('/me/permissions', permissions => !permissions.data.every(e => e.status == "granted") && alert("Please allow all permissions"));
+      FB.api('/me/accounts', pages => pages.length == 0 && alert("Please add a page to your account"));
+      getUser(token);
     }
-  );
+    else console.log('User cancelled login or did not fully authorize.');
+  }, {
+    scope: 'email,pages_show_list,pages_manage_metadata,pages_messaging,pages_read_engagement',
+    login_config_id: '3970975716449824',
+    auth_type: 'rerequest'
+  });
+};
+
+const checkLoginState = () => {
+  window.FB.getLoginStatus(({ status, authResponse }) => {    
+    if (status == "connected") {
+      const token = authResponse.accessToken;
+      getUser(token);
+    }
+    else {
+      clearUser();
+      fbInitzed.value = true;
+    };
+  });
+};
+
+const initFacebookSDK = () => {
+  window.FB.init({
+    appId: '1684228275531632', // Replace with your app ID
+    version: 'v17.0', // Replace with desired version
+    cookie: true,
+    xfbml: true,
+  });
+
+  window.FB.AppEvents.logPageView();
+  checkLoginState();
 };
 
 onMounted(() => {
-  // Ensure the Facebook SDK is always loaded
-  const loadFacebookSDK = () => {
-    window.fbAsyncInit = () => {
-      window.FB.init({
-        appId: '1684228275531632', // Replace with your app ID
-        version: 'v17.0', // Replace with desired version
-        cookie: true,
-        xfbml: true,
-      });
-
-      window.FB.AppEvents.logPageView();
-      console.log("FB SDK initialized");
-      getUserData();
-    };
-
-    window.fbAsyncInit();
-
-    if (window.FB) {
-      console.log("FB SDK already loaded");
-      getUserData();
-      return;
+  initFacebookSDK();
+  setTimeout(() => {
+    if(!fbInitzed.value) {
+      const interval = setInterval(() => {
+        if (fbInitzed.value) {
+          clearInterval(interval);
+          checkLoginState();
+        }
+        else initFacebookSDK();
+      }, 1000);
     }
-
-    let script, facebookJs = document.getElementsByTagName("script")[ 0 ];
-    if (document.getElementById("facebook-jssdk")) return;
-    script = document.createElement("script");
-    script.id = "facebook-jssdk";
-    script.src = 'https://connect.facebook.net/en_US/sdk.js';
-    facebookJs.parentNode.insertBefore(script, facebookJs);
-    console.log("FB SDK loaded");
-    getUserData();
-  };
-
-  loadFacebookSDK();
+  }, 1000);
 });
 </script>
