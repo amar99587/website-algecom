@@ -6,14 +6,14 @@
         <a :href="'https://app.algecom.com?token=' + user.access_token" class="hidden md:block font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1 px-6 rounded-md cursor-pointer">
           Go to Console
         </a>
-        <img :src="facebookGraph + user.access_token" class="w-9 h-9 bg-zinc-200 rounded-full cursor-pointer" :alt="user.name" @click="userCard = true">
+        <img :src="user.avatar" class="w-9 h-9 bg-zinc-200 rounded-full cursor-pointer" :alt="user.name" @click="userCard = true">
       </div>
-      <button v-else @click="userCard = true" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1 px-6 rounded-md">Login</button>
+      <button v-else @click="userCard = true" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1 px-6 rounded-md cursor-pointer">Login</button>
       <div v-if="userCard" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 duration-500">
         <div class="bg-white w-10/12 md:w-3/12 max-w-md pt-4 pb-2 px-5 rounded-xl -translate-y-20">
           <header class="flex justify-between items-center mb-8">
               <h2 class="font-family-dela text-lg font-bold">Account</h2>
-              <button @click="userCard = false">
+              <button v-if="!logging" @click="userCard = false">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1.5em" viewBox="0 0 384 512">
                   <path fill="currentColor" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7L86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256L41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3l105.4 105.3c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256z"/>
                 </svg>
@@ -21,12 +21,12 @@
           </header>
           <div class="flex flex-col gap-2">
             <template v-if="user.id">
-              <img :src="facebookGraph + user.access_token" class="w-20 h-20 bg-zinc-200 rounded-full mx-auto mb-4">
+              <img :src="user.avatar" class="w-20 h-20 bg-zinc-200 rounded-full mx-auto mb-4">
               <p class="text-center cursor-default">
                 <span class="text-xl text-neutral-800 font-semibold">{{ user.name }}</span> <br>
                 <span class="text-[smaller] text-neutral-600 font-medium">{{ user.email }}</span>
               </p>
-              <a :href="'https://app.algecom.com?token=' + user.access_token" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1.5 px-6 mx-auto mt-10 rounded-md w-fit tracking-wider">Go to Console</a>
+              <a :href="'https://app.algecom.com?token=' + user.access_token" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1.5 px-6 mx-auto mt-10 rounded-md w-fit tracking-wider cursor-pointer">Go to Console</a>
               <p class="grid gap-1  text-center mt-2 cursor-default">
                 <span @click="logout" class="text-xs font-semibold text-neutral-500 hover:text-red-600 duration-300 cursor-pointer">Logout</span>
                 <span class="text-[xx-small] text-neutral-400 font-medium">
@@ -40,7 +40,8 @@
                 Create or Login to your account <br>
                 using your Facebook account
               </p>
-              <button @click="login" class="font-family-dela text-xs bg-[#007AFF] hover:bg-[#0060C8] duration-300 text-white text-center py-1.5 px-6 mx-auto mt-10 rounded-md w-fit tracking-wider">Facebook</button>
+              <button v-if="logging" class="font-family-dela text-xs bg-zinc-300 text-zinc-500 duration-300 text-center py-1.5 px-6 mx-auto mt-10 rounded-md w-fit tracking-wider cursor-wait">Logging...</button>
+              <button v-else @click="login" class="font-family-dela text-xs bg-[#007AFF] hover:bg-[#0060C8] duration-300 text-white text-center py-1.5 px-6 mx-auto mt-10 rounded-md w-fit tracking-wider  cursor-pointer">Facebook</button>
               <p class="text-[xx-small] text-neutral-400 font-medium text-center mt-2 cursor-default">
                 By continuing, you agree to our <br>
                 <a href="" targer="_blank" class="hover:text-neutral-600 duration-300">Terms</a> and <a href="" targer="_blank" class="hover:text-neutral-600 duration-300">Privacy Policy</a>.
@@ -50,7 +51,7 @@
         </div>
       </div>
     </template>
-    <img v-else title="Facebook SDK is not initialized yet" src="@/assets/avatar.png" class="w-9 h-9 bg-zinc-200 rounded-full cursor-pointer">
+    <img v-else title="Facebook SDK is not initialized yet" src="@/assets/avatar.png" class="w-9 h-9 bg-zinc-200 rounded-full cursor-wait">
   </header>
   <div class="text-center mt-44">
     <h1 class="font-family-dela text-5xl pb-4 cursor-default">Mr7ba bik m3ana 🔥</h1>
@@ -115,18 +116,18 @@ import { ref, onMounted } from "vue";
 
 const id = Date.now();
 const message = ref("");
+const logging = ref(false);
 const sending = ref(false);
 const fbInitzed = ref(false);
 const userCard = ref(false);
 const conversation = ref([]);
 const chatContainer = ref(null);
 
-const facebookGraph = "https://graph.facebook.com/v19.0/me/picture?height=300&width=300&access_token="
-
 const user = ref({
   id: "",
-  name: "",
   email: "",
+  name: "",
+  avatar: "",
   picture: "",
   access_token: ""
 });
@@ -134,8 +135,9 @@ const user = ref({
 const clearUser = () => {
   user.value = {
     id: "",
-    name: "",
     email: "",
+    name: "",
+    avatar: "",
     picture: "",
     access_token: ""
   };
@@ -174,6 +176,7 @@ const logout = () => {
 };
 
 const getUser = access_token => {
+  const facebookGraph = "https://graph.facebook.com/v19.0/me/picture?height=300&width=300&access_token=";
   if (access_token) {
     window.FB.api('/me', { fields: 'name,email,picture', access_token }, (data) => {
       if (data?.error) {
@@ -181,14 +184,16 @@ const getUser = access_token => {
         fbInitzed.value = true;
         return;
       }
-      user.value = { ...data, access_token };
+      user.value = { ...data, access_token, avatar: facebookGraph + access_token };
       fbInitzed.value = true;
+      logging.value = false;
     });
   }
   else logout();
 };
 
 const login = () => {
+  logging.value = true;
   window.FB.login(({ status, authResponse }) => {
     if (status == "connected") {
       const token = authResponse.accessToken;
@@ -196,7 +201,10 @@ const login = () => {
       FB.api('/me/accounts', pages => pages.length == 0 && alert("Please add a page to your account"));
       getUser(token);
     }
-    else console.log('User cancelled login or did not fully authorize.');
+    else {
+      console.log('User cancelled login or did not fully authorize.');
+      logging.value = false;
+    }
   }, {
     scope: 'email,pages_show_list,pages_manage_metadata,pages_messaging,pages_read_engagement',
     login_config_id: '3970975716449824',
@@ -211,8 +219,8 @@ const checkLoginState = () => {
       getUser(token);
     }
     else {
-      clearUser();
       fbInitzed.value = true;
+      clearUser();
     };
   });
 };
