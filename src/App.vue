@@ -170,10 +170,10 @@ onMounted(() => {
 
     window.FB.AppEvents.logPageView();
     console.log("FB SDK loaded");
-    window.FB.api('/me', { fields: 'name,email,picture' }, (user) => {
-      console.log({ user, token });
-      console.log('Profile Picture URL:', user.picture?.data?.url);
-    });
+    // window.FB.api('/me', { fields: 'name,email,picture' }, (user) => {
+    //   console.log({ user, token });
+    //   console.log('Profile Picture URL:', user.picture?.data?.url);
+    // });
   };
   let [ d, s, id ] = [ document, 'script', 'facebook-jssdk' ];
   var js, fjs = d.getElementsByTagName(s)[0];
