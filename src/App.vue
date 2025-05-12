@@ -9,7 +9,7 @@
         <img :src="user.avatar" class="w-9 h-9 bg-zinc-200 rounded-full cursor-pointer" :alt="user.name" @click="userCard = true">
       </div>
       <button v-else @click="userCard = true" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1 px-6 rounded-md cursor-pointer">Login</button>
-      <div v-if="userCard" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 duration-500">
+      <div v-if="userCard" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 transition-all duration-500">
         <div class="bg-white w-10/12 md:w-3/12 max-w-md pt-4 pb-2 px-5 rounded-xl -translate-y-20">
           <header class="flex justify-between items-center mb-8">
               <h2 class="font-family-dela text-lg font-bold">Account</h2>
@@ -247,8 +247,8 @@ onMounted(() => {
           checkLoginState();
         }
         else initFacebookSDK();
-      }, 1000);
+      }, 5000);
     }
-  }, 1000);
+  }, 5000);
 });
 </script>
