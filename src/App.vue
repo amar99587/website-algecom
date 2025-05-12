@@ -197,8 +197,8 @@ const login = () => {
   window.FB.login(({ status, authResponse }) => {
     if (status == "connected") {
       const token = authResponse.accessToken;
-      FB.api('/me/permissions', permissions => !permissions.data.every(e => e.status == "granted") && alert("Please allow all permissions"));
-      FB.api('/me/accounts', pages => pages.length == 0 && alert("Please add a page to your account"));
+      FB.api('/me/permissions', ({ data }) => !data.every(e => e.status == "granted") && alert("Please allow all permissions"));
+      FB.api('/me/accounts', ({ data }) => !data.length && alert("Please add a page to your account"));
       getUser(token);
     }
     else {
