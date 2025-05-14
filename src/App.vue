@@ -60,7 +60,7 @@
       answers their questions, and sells like a pro, all in Algerian slang! <br class="hidden md:block">
       Focus on growing, we’ll handle the hustle.
     </p>
-    <div class="space-y-2 mt-16 mx-auto duration-500" :class="conversation.length ? 'w-10/12 md:w-4/12' : 'w-6/12 md:w-2/12'">
+    <div class="space-y-2 mt-16 mx-auto duration-500" :class="conversation.length ? 'w-10/12 md:w-4/12' : 'w-8/12 md:w-2/12'">
       <h6 class="text-start font-extrabold text-zinc-500 cursor-default">Give it a try</h6>
       <form v-if="!conversation.length" class="relative" @submit.prevent>
         <input v-model="message" maxlength="100" placeholder="Slm wchrak ?" class="w-full bg-neutral-100 border-2 border-neutral-300 hover:border-neutral-400 duration-300 text-sm px-2 py-1.5 rounded-lg placeholder:text-xs placeholder:text-neutral-400 placeholder:pb-0.5">
