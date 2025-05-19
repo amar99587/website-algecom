@@ -26,7 +26,8 @@
                 <span class="text-xl text-neutral-800 font-semibold">{{ user.name }}</span> <br>
                 <span class="text-[smaller] text-neutral-600 font-medium">{{ user.email }}</span>
               </p>
-              <a :href="'https://app.algecom.com?token=' + user.access_token" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1.5 px-6 mx-auto mt-10 rounded-md w-fit tracking-wider cursor-pointer">Go to Console</a>
+              <button @click="loginWithGoogle" class="font-family-dela text-xs bg-red-800 hover:bg-red-700 duration-300 text-white text-center py-1.5 px-6 mx-auto mt-10 mb-2 rounded-md w-fit tracking-wider cursor-pointer">Google</button>
+              <a :href="'https://app.algecom.com?token=' + user.access_token" class="font-family-dela text-xs bg-zinc-800 hover:bg-zinc-700 duration-300 text-white text-center py-1.5 px-6 mx-auto rounded-md w-fit tracking-wider cursor-pointer">Go to Console</a>
               <p class="grid gap-1  text-center mt-2 cursor-default">
                 <span @click="logout" class="text-xs font-semibold text-neutral-500 hover:text-red-600 duration-300 cursor-pointer">Logout</span>
                 <span class="text-[xx-small] text-neutral-400 font-medium">
@@ -113,6 +114,17 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { loadGapiInsideDOM } from 'gapi-script';
+
+const CLIENT_ID = '520593359020-rqg64cfm6n4f4fvkchv4f5st45rhq3pr.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.metadata.readonly';
+
+const initClient = () => {
+  gapi.client.init({
+    clientId: CLIENT_ID,
+    scope: SCOPES,
+  });
+};
 
 const id = Date.now();
 const message = ref("");
@@ -151,7 +163,7 @@ const send = async msg => {
   setTimeout(() => chatContainer.value.scrollIntoView(0), 100);
   message.value = "";
 
-  const response = await fetch("https://n8n-xlar.onrender.com/webhook/cd490251-16ef-44ea-9559-3d6b6cb3ec50/send", {
+  const response = await fetch("https://n8n.algecom.onrender.com/webhook/chat", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -237,7 +249,35 @@ const initFacebookSDK = () => {
   checkLoginState();
 };
 
-onMounted(() => {
+const google = {};
+
+const loginWithGoogle = async () => {
+  const auth = gapi.auth2.getAuthInstance();
+
+  try {
+    const user = await auth.signIn();
+    const token = user.getAuthResponse().access_token;
+    console.log('Access token:', token);
+    
+    // Optional: Store user or token
+    const profile = user.getBasicProfile();
+    console.log('User:', {
+      profile,
+      name: profile.getName(),
+      email: profile.getEmail(),
+    });
+
+    // Use token with Google Sheets API or pass to backend
+  } catch (err) {
+    console.error('Login failed:', err);
+  }
+};
+
+onMounted(async () => {
+  // Load the Google SDK asynchronously
+  await loadGapiInsideDOM();
+  gapi.load('client:auth2', initClient);
+
   initFacebookSDK();
   setTimeout(() => {
     if(!fbInitzed.value) {
