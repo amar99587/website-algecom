@@ -1,11 +1,11 @@
 <template>
-  <header class="fixed w-full flex justify-between items-center bg-white p-4 z-10 duration-300">
-    <img src="@/assets/logo.svg" class="w-32" alt="Algecom's logo">
+  <header class="fixed w-full h-12 bg-white flex justify-between items-center p-4 z-10">
+    <img src="@/assets/logo.svg" class="w-28" alt="Algecom's logo">
     <a href="https://app.algecom.com" class="font-family-dela text-xs bg-neutral-800 hover:bg-neutral-700 duration-300 text-white text-center py-1 px-6 rounded-md cursor-pointer">
       Go to Console
     </a>
   </header>
-  <div class="fixed inset-0 flex justify-center items-center bg-neutral-100 bg-[url(https://picsum.photos/1920/1080)]">
+  <div class="fixed inset-0 flex justify-center items-center bg-neutral-100 bg-cover bg-center bg-[url(https://picsum.photos/2560/1440)]">
     <div :class="conversation.length ? 'md:w-5/12 py-8 px-2' : 'md:w-5/12 py-16 px-4'" class="bg-white text-center flex flex-col justify-center items-center gap-12 rounded-xl border-2 border-neutral-200 mx-4">
       <h1 class="font-family-dela text-5xl my-4 cursor-default">Mr7ba bik M3ana</h1>
       <p class="w-11/12 md:w-9/12 text-sm font-semibold text-neutral-500 text-center cursor-default">
