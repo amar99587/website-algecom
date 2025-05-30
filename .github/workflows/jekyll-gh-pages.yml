@@ -27,7 +27,7 @@ jobs:
       - name: Deploy
         uses: skywarth/vite-github-pages-deployer@v1.5.0
         with:
-          public_base_path: /<REPO_NAME>/
+          public_base_path: /website-algecom/
           build_path: dist
           install_phase_node_env: dev
           build_phase_node_env: production
