@@ -22,6 +22,7 @@
     "@vue/cli-plugin-vuex": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "typescript": "~4.5.5",
+    "gh-pages": "^5.0.0",
     "vue-cli-plugin-tailwind": "~3.0.0"
   },
   "browserslist": [
